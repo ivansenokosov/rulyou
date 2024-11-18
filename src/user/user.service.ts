@@ -1,8 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { CreateUserDto } from './dto/createUser.dto';
-import type { IGetResponse } from 'src/interfaces';
+import type { IResponse } from 'src/interfaces';
+import { PatchUserDto } from './dto/patchUser.dto';
 
 @Injectable()
 export class UserService {
@@ -10,7 +11,7 @@ export class UserService {
 
   async get(
     postWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<IGetResponse | null> {
+  ): Promise<IResponse | null> {
     const result = await this.prisma.user.findUnique({
       where: postWhereUniqueInput,
     });
@@ -23,7 +24,7 @@ export class UserService {
     cursor?: Prisma.UserWhereUniqueInput;
     where?: Prisma.UserWhereInput;
     orderBy?: Prisma.UserOrderByWithRelationInput;
-  }): Promise<IGetResponse> {
+  }): Promise<IResponse> {
     const { skip, take, cursor, where, orderBy } = params;
     const result = await this.prisma.user.findMany({
       skip,
@@ -35,9 +36,10 @@ export class UserService {
     return { success: true, result: { users: result } };
   }
 
-  async create(user: CreateUserDto) {
-    await this.prisma.user
-      .create({
+  async create(user: CreateUserDto): Promise<IResponse> {
+    let result: IResponse;
+    try {
+      const response = await this.prisma.user.create({
         data: {
           full_name: user.full_name,
           role: user.role,
@@ -46,16 +48,16 @@ export class UserService {
         select: {
           id: true,
         },
-      })
-      .then((response) => {
-        return { success: true, id: response.id };
-      })
-      .catch((error) => {
-        return { success: false, result: { error: error } };
       });
+      result = { success: true, result: { id: response.id } };
+    } catch (error) {
+      result = { success: false, result: { error: error } };
+    }
+
+    return result;
   }
 
-  async update(id: number, dto: CreateUserDto) {
+  async update(id: number, dto: PatchUserDto) {
     const user = await this.prisma.user.update({
       data: dto,
       where: { id: id },

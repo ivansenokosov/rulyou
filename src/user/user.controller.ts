@@ -4,14 +4,16 @@ import {
   Param,
   Post,
   Body,
-  Put,
+  Patch,
   Delete,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 
 import { UserService } from './user.service';
-import { User as UserModel } from '@prisma/client';
 import { CreateUserDto } from './dto/createUser.dto';
+import { PatchUserDto } from './dto/patchUser.dto';
 import { FindOneParams } from './dto/param.dto';
 
 @Controller('')
@@ -21,16 +23,20 @@ export class UserController {
   // Create
   @Post('create')
   async createUserInvConfig(@Body() dto: CreateUserDto) {
-    return this.UserService.create(dto);
+    const result = await this.UserService.create(dto);
+    console.log('result', result);
+    return result;
   }
 
-  // Update
-  @Put('update/:id')
+  // Patch
+  @Patch('update/:id')
+  @UsePipes(new ValidationPipe({ groups: ['patch'] }))
   async updateUser(
     @Body()
-    dto: CreateUserDto,
+    dto: PatchUserDto,
     @Param() params: FindOneParams,
   ) {
+    console.log('dto', dto)
     return this.UserService.update(Number(params.id), dto);
   }
 
