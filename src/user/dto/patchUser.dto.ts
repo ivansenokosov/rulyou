@@ -9,8 +9,8 @@ export class PatchUserDto {
   readonly full_name: string;
 
   @IsString({ message: 'Поле role должно быть строкой' })
-  @Length(1, 100, {
-    message: 'Поле role должно иметь длину от 1 до 100 символов',
+  @Length(4, 100, {
+    message: 'Поле role должно иметь длину от 4 до 100 символов',
   })
   @IsOptional()
   readonly role: string;

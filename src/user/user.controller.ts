@@ -36,7 +36,6 @@ export class UserController {
     dto: PatchUserDto,
     @Param() params: FindOneParams,
   ) {
-    console.log('dto', dto)
     return this.UserService.update(Number(params.id), dto);
   }
 
