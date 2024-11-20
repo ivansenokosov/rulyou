@@ -15,7 +15,8 @@ export class UserService {
     const result = await this.prisma.user.findUnique({
       where: postWhereUniqueInput,
     });
-    return { success: true, result: { users: [result] } };
+    if (result) return { success: true, result: { users: [result] } };
+    else return { success: false, result: { error: 'Ничего не найдено' } };
   }
 
   async all(params: {
@@ -33,7 +34,9 @@ export class UserService {
       where,
       orderBy,
     });
-    return { success: true, result: { users: result } };
+    console.log(where);
+    if (result.length > 0) return { success: true, result: { users: result } };
+    else return { success: false, result: { error: 'Ничего не найдено' } };
   }
 
   async create(user: CreateUserDto): Promise<IResponse> {
@@ -58,19 +61,29 @@ export class UserService {
   }
 
   async update(id: number, dto: PatchUserDto) {
-    const user = await this.prisma.user.update({
-      data: dto,
-      where: { id: id },
-    });
+    try {
+      const user = await this.prisma.user.update({
+        data: dto,
+        where: { id: id },
+      });
 
-    return { success: true, result: user };
+      return { success: true, result: user };
+    } catch (error) {
+      console.log(error);
+      return { success: false, result: { error: 'Пользователь не обновлён' } };
+    }
   }
 
   async delete(where: Prisma.UserWhereUniqueInput) {
-    const result = await this.prisma.user.delete({
-      where,
-    });
-    return { success: true, result };
+    try {
+      const result = await this.prisma.user.delete({
+        where,
+      });
+      return { success: true, result };
+    } catch (error) {
+      console.log(error);
+      return { success: false, result: { error: 'Пользователь не найден' } };
+    }
   }
 
   async deleteAll() {

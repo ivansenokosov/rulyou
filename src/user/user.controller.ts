@@ -53,10 +53,14 @@ export class UserController {
 
   // Get all
   @Get('get')
-  async getAll(@Query('role') role: string) {
-    return this.UserService.all({
-      where: { role: role },
-    });
+  async getAll(@Query() query) {
+    if (Object.keys(query).length > 0)
+      if (query.role)
+        return this.UserService.all({
+          where: { role: query.role },
+        });
+      else return { success: false, result: { error: 'Ошибочный запрос' } };
+    else return this.UserService.all({});
   }
 
   // Get one
