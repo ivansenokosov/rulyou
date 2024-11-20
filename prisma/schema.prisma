@@ -18,5 +18,5 @@ model User {
   id Int @id @default(autoincrement())
   full_name String
   role String
-  efficiency BigInt
+  efficiency Int
 }
